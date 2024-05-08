@@ -36,12 +36,14 @@ ORDER BY perc_increase;
 
 -- 2) Kolik je možné si koupit litrů mléka a kilogramů chleba za první a poslední srovnatelné období v dostupných datech cen a mezd?
 
--- 
+-- časový rozptyl měřených dat -> od roku 2006, do roku 2018 pro ceny produktů
 SELECT min(`year`), max(`year`)
 FROM primary_table AS pt
 WHERE name_type = 'Produkt';
 
+-- 2000 až 2021 pro mzdy
 SELECT min(`year`), max(`year`)
 FROM primary_table AS pt
 WHERE name_type = 'Odvětví'
 
+-- první porovnatelné období je rok 2006, poslední rok 2018
