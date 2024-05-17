@@ -1,3 +1,5 @@
+
+-- discord jméno: vojtechrauer_90731
 -- PRIMÁRNÍ TABULKA
 -- průměrná cena za produkty (pro celou republiku) sjednocená na roky + průměrný plat v daných odvětvích sjednocený na roky
 CREATE OR REPLACE TABLE
