@@ -46,7 +46,7 @@ FROM perc_increase
 WHERE perc_increase < 0
 ORDER BY perc_increase;
 
--- ODPOVĚĎ: mzdy klesají. Výsledný select podává informace o odvětví a roku, ve kterém mzda poklesla oproti předcházejícímu roku, a o kolik procent. Hodnoty jsou seřazeny sestupně od největšího poklesu.
+-- ODPOVĚĎ: V některých mzdy klesají. Výsledný select podává informace o odvětví a roku, ve kterém mzda poklesla oproti předcházejícímu roku, a o kolik procent. Hodnoty jsou seřazeny sestupně od největšího poklesu.
 
 
 -- 2) Kolik je možné si koupit litrů mléka a kilogramů chleba za první a poslední srovnatelné období v dostupných datech cen a mezd?
