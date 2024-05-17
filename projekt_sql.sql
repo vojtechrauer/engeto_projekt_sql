@@ -100,8 +100,7 @@ SELECT p06.name,
 FROM payroll_2006 AS p06
 INNER JOIN payroll_2018 AS p18
 ON p06.name = p18.name;
-
-
+-- ODPOVĚĎ: viz výsledná tabulka
 
 -- 3) Která kategorie potravin zdražuje nejpomaleji (je u ní nejnižší percentuální meziroční nárůst)?
 -- pohled průměrného procentuálního nárůstu ceny produktů oproti předcházejícímu roku
@@ -182,6 +181,6 @@ ON hi.`year` = wi.`year`
 INNER JOIN price_inc AS pi
 ON wi.`year` = pi.`year`
 GROUP BY hi.`year`
-ORDER BY perc_inc_gdp DESC;
+ORDER BY gdp DESC;
 
-
+-- ODPOVĚĎ: Vyšší nárůst HDP odkazuje k vyšším hodnotám procentuálního růstu mezd a cen (nejvyšší růst HDP v letech 2006 a 2007 se projevily výraznějším růstem mezd a cen v letech 2006, 2007 a 2008), ale neplatí striktně přímá úměra (třetí nejvýraznější růst HDP v roce 2015 doprovázejí nízké hodnoty růstu cen a mezd)
