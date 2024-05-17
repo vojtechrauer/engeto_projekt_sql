@@ -16,6 +16,12 @@ WHERE
 AND cp.calculation_code = 200 -- kód pro přepočtený průměr (přesnější, protože kalkuluje s částečnými úvazky)
 GROUP BY cpib.name, cp.payroll_year);
 
+-- HDP, GINI koeficient a populace pro státy ve vybraných letech
+CREATE OR REPLACE TABLE t_vojtech_rauer_project_SQL_secondary_final AS (
+SELECT country, `year`, GDP, gini, population 
+FROM economies AS e
+WHERE `year` BETWEEN 2000 AND 2021);
+
 
 -- 1) Rostou v průběhu let mzdy ve všech odvětvích, nebo v některých klesají?
 
@@ -106,7 +112,7 @@ ORDER BY avg_perc_increase;
 
 
 
-4.) Existuje rok, ve kterém byl meziroční nárůst cen potravin výrazně vyšší než růst mezd (větší než 10 %)?
+-- 4.) Existuje rok, ve kterém byl meziroční nárůst cen potravin výrazně vyšší než růst mezd (větší než 10 %)?
 WITH
 	increase_price AS -- procentuální nárůst cen produktů oproti předchozímu roku
 		(SELECT
@@ -122,10 +128,48 @@ WITH
 		ROUND((value - LAG(value) OVER (PARTITION BY name ORDER BY year)) / ((LAG(value) OVER (PARTITION BY name ORDER BY year)) / 100), 2) AS perc_increase_wage
 		FROM primary_table AS pt
 		WHERE name_type = 'Odvětví')
-SELECT avg(perc_increase_price) - avg(perc_increase_wage) AS price_perc_inc, ip.`year` -- rozdíl průměrného narůstu cen produktů v daném roce a průměrného nárůstu mezd všech odvětví
+SELECT avg(perc_increase_price) - avg(perc_increase_wage) AS diff_perc_inc, ip.`year` -- rozdíl průměrného narůstu cen produktů v daném roce a průměrného nárůstu mezd všech odvětví
 FROM increase_price AS ip
 INNER JOIN increase_wage AS iw
 ON ip.`year` = iw.`year`
 WHERE ip.`year` BETWEEN 2007 AND 2018
 GROUP BY ip.`year`
-ORDER BY price_perc_inc DESC;
+ORDER BY diff_perc_inc DESC;
+
+
+WITH 	
+		hdp_inc AS
+		(SELECT
+		country,
+		`year`,
+		round((gdp - lag(gdp) OVER (ORDER BY `year`)) / (lag(gdp) OVER (ORDER BY `year`)/100), 2) AS perc_inc_gdp
+FROM t_vojtech_rauer_project_SQL_secondary_final
+WHERE country = 'Czech republic'),
+		price_inc AS -- procentuální nárůst cen produktů oproti předchozímu roku
+		(SELECT
+		name,
+		`year`,
+		ROUND((value - LAG(value) OVER (PARTITION BY name ORDER BY year)) / ((LAG(value) OVER (PARTITION BY name ORDER BY year)) / 100), 2) AS perc_increase_price
+		FROM primary_table AS pt
+		WHERE name_type = 'Produkt'),
+		wage_inc AS -- procentuální nárůst mzdy v daném odvětví oproti předchozímu roku
+		(SELECT
+		name,
+		`year`,
+		ROUND((value - LAG(value) OVER (PARTITION BY name ORDER BY year)) / ((LAG(value) OVER (PARTITION BY name ORDER BY year)) / 100), 2) AS perc_increase_wage
+		FROM primary_table AS pt
+		WHERE name_type = 'Odvětví')
+SELECT
+	hi.`year`,
+	round(avg(perc_increase_wage), 2) AS wage,
+	round(avg(perc_increase_price), 2) AS price,
+	round(avg(perc_inc_gdp), 2) AS gdp
+FROM hdp_inc AS hi
+INNER JOIN wage_inc AS wi
+ON hi.`year` = wi.`year`
+INNER JOIN price_inc AS pi
+ON wi.`year` = pi.`year`
+GROUP BY hi.`year`
+ORDER BY perc_inc_gdp DESC;
+
+
