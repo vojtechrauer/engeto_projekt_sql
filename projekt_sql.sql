@@ -1,28 +1,33 @@
+-- PRIMÁRNÍ TABULKA
 -- průměrná cena za produkty (pro celou republiku) sjednocená na roky + průměrný plat v daných odvětvích sjednocený na roky
-CREATE OR REPLACE TABLE t_vojtech_rauer__project_SQL_primary_final AS
-(SELECT avg(cp.value) AS value, cpc.name , year(cp.date_to) AS `year`, 'Cena produktu v Kč' AS value_type, 'Produkt' AS name_type
-FROM czechia_price AS cp
-INNER JOIN czechia_price_category AS cpc
-ON cpc.code = cp.category_code 
-WHERE region_code IS NULL
-GROUP BY category_code, YEAR(date_to)
-UNION ALL
-SELECT avg(cp.value) AS value, cpib.name, cp.payroll_year AS `year`, 'Prům. hrubá mzda v Kč' AS value_type, 'Odvětví' AS name_type
-FROM czechia_payroll AS cp
-INNER JOIN czechia_payroll_industry_branch AS cpib
-ON cp.industry_branch_code = cpib.code -- zmizí NULL hodnoty, které nesou údaje o průměru (ten jde vypočítat i z výsledné tabulky -> nepřichází se o data)
-WHERE
-	cp.value_type_code = 5958 -- kód pro průměrnou mzdu
-AND cp.calculation_code = 200 -- kód pro přepočtený průměr (přesnější, protože kalkuluje s částečnými úvazky)
-GROUP BY cpib.name, cp.payroll_year);
+CREATE OR REPLACE TABLE
+	t_vojtech_rauer__project_SQL_primary_final AS
+		(SELECT avg(cp.value) AS value, cpc.name , year(cp.date_to) AS `year`, 'Cena produktu v Kč' AS value_type, 'Produkt' AS name_type
+		FROM czechia_price AS cp
+		INNER JOIN czechia_price_category AS cpc
+		ON cpc.code = cp.category_code 
+		WHERE region_code IS NULL
+		GROUP BY category_code, YEAR(date_to)
+		UNION ALL
+		SELECT avg(cp.value) AS value, cpib.name, cp.payroll_year AS `year`, 'Prům. hrubá mzda v Kč' AS value_type, 'Odvětví' AS name_type
+		FROM czechia_payroll AS cp
+		INNER JOIN czechia_payroll_industry_branch AS cpib
+		ON cp.industry_branch_code = cpib.code -- zmizí NULL hodnoty, které nesou údaje o průměru (ten jde vypočítat i z výsledné tabulky -> nepřichází se o data)
+		WHERE
+			cp.value_type_code = 5958 -- kód pro průměrnou mzdu
+		AND cp.calculation_code = 200 -- kód pro přepočtený průměr (přesnější, protože kalkuluje s částečnými úvazky)
+		GROUP BY cpib.name, cp.payroll_year);
 
+-- SEKUNDÁRNÍ TABULKA
 -- HDP, GINI koeficient a populace pro státy ve vybraných letech
-CREATE OR REPLACE TABLE t_vojtech_rauer_project_SQL_secondary_final AS (
-SELECT country, `year`, GDP, gini, population 
-FROM economies AS e
-WHERE `year` BETWEEN 2000 AND 2021);
+CREATE OR REPLACE TABLE
+	t_vojtech_rauer_project_SQL_secondary_final AS (
+		SELECT country, `year`, GDP, gini, population 
+		FROM economies AS e
+		WHERE `year` BETWEEN 2000 AND 2021);
 
-
+-- VÝZKUMNÉ OTÁZKY
+	
 -- 1) Rostou v průběhu let mzdy ve všech odvětvích, nebo v některých klesají?
 
 -- pohled znázorňující procentuální nárůst průměrné mzdy v daném odvětví oproti předcházejícímu roku
@@ -33,12 +38,16 @@ SELECT
 	ROUND((value - LAG(value) OVER (PARTITION BY name ORDER BY year)) / ((LAG(value) OVER (PARTITION BY name ORDER BY year)) / 100), 2) AS perc_increase
 FROM t_vojtech_rauer__project_SQL_primary_final AS pt
 WHERE name_type = 'Odvětví')
+-- 
 -- Výběr odvětví a let, u kterých oproti předcházejícím roku procentuálně poklesla průměrná mzda a procento poklesu
 SELECT 
 	*
 FROM perc_increase
 WHERE perc_increase < 0
 ORDER BY perc_increase;
+
+-- ODPOVĚĎ: mzdy klesají. Výsledný select podává informace o odvětví a roku, ve kterém mzda poklesla oproti předcházejícímu roku, a o kolik procent. Hodnoty jsou seřazeny sestupně od největšího poklesu.
+
 
 -- 2) Kolik je možné si koupit litrů mléka a kilogramů chleba za první a poslední srovnatelné období v dostupných datech cen a mezd?
 
@@ -53,7 +62,7 @@ FROM t_vojtech_rauer__project_SQL_primary_final AS pt
 WHERE name_type = 'Odvětví';
 
 -- první porovnatelné období je rok 2006, poslední rok 2018
-
+-- deklarování proměnných pro ceny mléka a chleba v daných letech
 SET @2006_bread = (SELECT value
 FROM t_vojtech_rauer__project_SQL_primary_final AS pt
 WHERE name = 'Chléb konzumní kmínový'
@@ -94,8 +103,8 @@ ON p06.name = p18.name;
 
 
 
--- Která kategorie potravin zdražuje nejpomaleji (je u ní nejnižší percentuální meziroční nárůst)?
--- pohled procentuálního nárůstu ceny produktů oproti předcházejícímu roku
+-- 3) Která kategorie potravin zdražuje nejpomaleji (je u ní nejnižší percentuální meziroční nárůst)?
+-- pohled průměrného procentuálního nárůstu ceny produktů oproti předcházejícímu roku
 WITH perc_increase_price AS (
 SELECT
 	name,
@@ -109,6 +118,7 @@ SELECT
 FROM perc_increase_price
 GROUP BY name
 ORDER BY avg_perc_increase;
+-- ODPOVĚĎ: výsledný select zobrazuje produkty seřazené podle průměrného nárůstu ceny oproti předcházejícímu roku, seřazené vzestupně od nejmenšího nárůstu. Dvě horní hodnoty (cukr a rajčata), dokonce průměrně meziročně zlevňují
 
 
 
@@ -135,7 +145,9 @@ ON ip.`year` = iw.`year`
 WHERE ip.`year` BETWEEN 2007 AND 2018
 GROUP BY ip.`year`
 ORDER BY diff_perc_inc DESC;
+-- ODPOVĚĎ: V žádném roce nebyl nárůst cen výrazně vyšší než průměrné zdražení všech produktů v daném roce. Nejvyšší rozdíl mezi růstem cen a mezd byl v rice 2013, kde ceny potravin průměrně vzrostly o 6,7 % oproti průměrnému růstu mezd
 
+-- 5) Má výška HDP vliv na změny ve mzdách a cenách potravin? Neboli, pokud HDP vzroste výrazněji v jednom roce, projeví se to na cenách potravin či mzdách ve stejném nebo násdujícím roce výraznějším růstem?
 
 WITH 	
 		hdp_inc AS
