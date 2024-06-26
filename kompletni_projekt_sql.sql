@@ -28,7 +28,7 @@ CREATE OR REPLACE TABLE
 		FROM economies AS e
 		WHERE `year` BETWEEN 2000 AND 2021);
 
--- VÝZKUMNÉ OTÁZKY
+-- VÝZKUMNÉ OTÁZKY:
 	
 -- 1) Rostou v průběhu let mzdy ve všech odvětvích, nebo v některých klesají?
 
@@ -48,8 +48,13 @@ FROM perc_increase
 WHERE perc_increase < 0
 ORDER BY perc_increase;
 
--- ODPOVĚĎ: V některých mzdy klesají. Výsledný select podává informace o odvětví a roku, ve kterém mzda poklesla oproti předcházejícímu roku, a o kolik procent. Hodnoty jsou seřazeny sestupně od největšího poklesu.
-
+/* ODPOVĚĎ: V některých odvětvích mzdy klesají,
+   nejvýraznější pokles zaznamenalo peněžnictví a pojišťovnictví v roce 2013,
+   činnosti v oblasti nemovitostí v roce 2020 a ubytování, stravování a pohostintví v roce 2020.
+   
+   Výsledný select podává informace o odvětví a roku,
+   ve kterém mzda poklesla oproti předcházejícímu roku, a o kolik procent.
+   Hodnoty jsou seřazeny sestupně od největšího poklesu.*/
 
 -- 2) Kolik je možné si koupit litrů mléka a kilogramů chleba za první a poslední srovnatelné období v dostupných datech cen a mezd?
 
@@ -64,26 +69,6 @@ FROM t_vojtech_rauer__project_SQL_primary_final AS pt
 WHERE name_type = 'Odvětví';
 
 -- první porovnatelné období je rok 2006, poslední rok 2018
--- deklarování proměnných pro ceny mléka a chleba v daných letech
-SET @2006_bread = (SELECT value
-FROM t_vojtech_rauer__project_SQL_primary_final AS pt
-WHERE name = 'Chléb konzumní kmínový'
-AND `year` = 2006);
-
-SET @2018_bread = (SELECT value
-FROM t_vojtech_rauer__project_SQL_primary_final AS pt
-WHERE name = 'Chléb konzumní kmínový'
-AND `year` = 2018);
-
-SET @2006_milk = (SELECT value
-FROM t_vojtech_rauer__project_SQL_primary_final AS pt
-WHERE name = 'Mléko polotučné pasterované'
-AND `year` = 2006);
-
-SET @2018_milk = (SELECT value
-FROM t_vojtech_rauer__project_SQL_primary_final AS pt
-WHERE name = 'Mléko polotučné pasterované'
-AND `year` = 2018);
 
 -- průměrná mzda v daném odvětví a roce vydělená průměrnými cenami produktů v tomto roce
 WITH payroll_2006 AS (SELECT value, name 
@@ -95,16 +80,37 @@ FROM t_vojtech_rauer__project_SQL_primary_final AS pt
 WHERE name_type = 'Odvětví'
 AND `year` = 2018)
 SELECT p06.name,
-	round(p06.value / @2006_milk) AS l_milk_2006,
-	round(p06.value / @2006_bread) AS kg_bread_2018,
-	round(p18.value / @2018_milk) AS l_milk_2006,
-	round(p18.value / @2018_bread) AS kg_bread_2018
+	round(p06.value / (SELECT value
+						FROM t_vojtech_rauer__project_SQL_primary_final AS pt
+						WHERE name = 'Mléko polotučné pasterované'
+						AND `year` = 2006)) AS l_milk_2006,
+	round(p06.value / (SELECT value
+						FROM t_vojtech_rauer__project_SQL_primary_final AS pt
+						WHERE name = 'Chléb konzumní kmínový'
+						AND `year` = 2006)) AS kg_bread_2018,
+	round(p18.value / (SELECT value
+						FROM t_vojtech_rauer__project_SQL_primary_final AS pt
+						WHERE name = 'Mléko polotučné pasterované'
+						AND `year` = 2018)) AS l_milk_2006,
+	round(p18.value / (SELECT value
+						FROM t_vojtech_rauer__project_SQL_primary_final AS pt
+						WHERE name = 'Chléb konzumní kmínový'
+						AND `year` = 2018)) AS kg_bread_2018
 FROM payroll_2006 AS p06
 INNER JOIN payroll_2018 AS p18
 ON p06.name = p18.name;
--- ODPOVĚĎ: viz výsledná tabulka
+
+/* ODPOVĚĎ: viz výsledná tabulka. Konkrétní množství litrů mléka a kilogramů chleba,
+ * které si lze koupit za průměrný plat v daném odvětví, se odvíjí od průměrného platu
+ * pro daný rok v daném odvětví. Na horních příčkách se tak umisťuje např. peněžnictví
+ * a pojišťovnictví - v roce 2006 si za průměrný plat v tomto odvětví bylo možné pořídit
+ * 2 772 litrů mléka a 2 483 kilogramů chleba. Hodnoty pro rok 2018 mají jen zanedbatelný rozdíl
+ * oproti roku 2006 (2 769 litrů mléka a 2 264 kilogramů chleba). Ve spodních příčkách nalezneme
+ * ubytování, stravování a pohostinství (809 litrů mléka a 724 kilogramů chleba pro rok 2006,
+ * 972 litrů mléka a 795 kilogramů chleba pro rok 2018) */
 
 -- 3) Která kategorie potravin zdražuje nejpomaleji (je u ní nejnižší percentuální meziroční nárůst)?
+
 -- pohled průměrného procentuálního nárůstu ceny produktů oproti předcházejícímu roku
 WITH perc_increase_price AS (
 SELECT
@@ -119,8 +125,13 @@ SELECT
 FROM perc_increase_price
 GROUP BY name
 ORDER BY avg_perc_increase;
--- ODPOVĚĎ: výsledný select zobrazuje produkty seřazené podle průměrného nárůstu ceny oproti předcházejícímu roku, seřazené vzestupně od nejmenšího nárůstu. Dvě horní hodnoty (cukr a rajčata), dokonce průměrně meziročně zlevňují
 
+/* ODPOVĚĎ: Nejpomaleji zdražuje (resp. dokonce zlevňuje) cukr.
+
+   Výsledný select zobrazuje produkty seřazené podle průměrného
+   nárůstu ceny oproti předcházejícímu roku, seřazené vzestupně
+   od nejmenšího nárůstu.
+   Dvě horní hodnoty (cukr a rajčata) průměrně meziročně zlevňují. */
 
 
 -- 4.) Existuje rok, ve kterém byl meziroční nárůst cen potravin výrazně vyšší než růst mezd (větší než 10 %)?
@@ -146,7 +157,11 @@ ON ip.`year` = iw.`year`
 WHERE ip.`year` BETWEEN 2007 AND 2018
 GROUP BY ip.`year`
 ORDER BY diff_perc_inc DESC;
--- ODPOVĚĎ: V žádném roce nebyl nárůst cen výrazně vyšší než průměrné zdražení všech produktů v daném roce. Nejvyšší rozdíl mezi růstem cen a mezd byl v rice 2013, kde ceny potravin průměrně vzrostly o 6,7 % oproti průměrnému růstu mezd
+
+/* ODPOVĚĎ: V žádném roce nebyl nárůst cen výrazně vyšší než průměrné zdražení všech produktů v daném roce.
+   Nejvyšší rozdíl mezi růstem cen a mezd byl v roce 2013, kde ceny potravin průměrně vzrostly o 6,7 % oproti průměrnému růstu mezd.
+   
+   Tabulka zobrazuje rozdíl percentuálního meziročního nárůstu cen potravin oproti percentuálnímu meziročnímu nárůstu mezd. */
 
 -- 5) Má výška HDP vliv na změny ve mzdách a cenách potravin? Neboli, pokud HDP vzroste výrazněji v jednom roce, projeví se to na cenách potravin či mzdách ve stejném nebo násdujícím roce výraznějším růstem?
 
@@ -185,4 +200,6 @@ ON wi.`year` = pi.`year`
 GROUP BY hi.`year`
 ORDER BY gdp DESC;
 
--- ODPOVĚĎ: Vyšší nárůst HDP odkazuje k vyšším hodnotám procentuálního růstu mezd a cen (nejvyšší růst HDP v letech 2006 a 2007 se projevily výraznějším růstem mezd a cen v letech 2006, 2007 a 2008), ale neplatí striktně přímá úměra (třetí nejvýraznější růst HDP v roce 2015 doprovázejí nízké hodnoty růstu cen a mezd)
+/* ODPOVĚĎ: Vyšší nárůst HDP odkazuje k vyšším hodnotám procentuálního růstu mezd a cen
+ * (nejvyšší růst HDP v letech 2006 a 2007 se projevil výraznějším růstem mezd a cen v letech 2006, 2007 a 2008),
+ * ale neplatí striktně přímá úměra (třetí nejvýraznější růst HDP v roce 2015 doprovázejí nízké hodnoty růstu cen a mezd). */
