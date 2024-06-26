@@ -9,19 +9,19 @@ Projekt zpracovává odpovědi na vytyčené výzkumné otázky týkající se m
 ## Výzkumné otázky a odpovědi:
  
  **1. OTÁZKA: Rostou v průběhu let mzdy ve všech odvětvích, nebo v některých klesají?**
-    * *ODPOVĚĎ: V některých odvětvích mzdy klesají, nejvýraznější pokles zaznamenalo peněžnictví a pojišťovnictví v roce 2013, činnosti v oblasti nemovitostí v roce 2020 a ubytování, stravování a pohostinství v roce 2020.* *
+ ODPOVĚĎ: V některých odvětvích mzdy klesají, nejvýraznější pokles zaznamenalo peněžnictví a pojišťovnictví v roce 2013, činnosti v oblasti nemovitostí v roce 2020 a ubytování, stravování a pohostinství v roce 2020.
    
 
  **2. OTÁZKA: Kolik je možné si koupit litrů mléka a kilogramů chleba za první a poslední srovnatelné období v dostupných datech cen a mezd?**
-    * *ODPOVĚĎ: Konkrétní množství litrů mléka a kilogramů chleba, které si lze koupit za průměrný plat v daném odvětví, se odvíjí od průměrného platu pro daný rok v daném odvětví. Na horních příčkách se tak umisťuje např. peněžnictví a pojišťovnictví - v roce 2006 si za průměrný plat v tomto odvětví bylo možné pořídit 2 772 litrů mléka a 2 483 kilogramů chleba. Hodnoty pro rok 2018 mají jen zanedbatelný rozdíl oproti roku 2006 (2 769 litrů mléka a 2 264 kilogramů chleba). Ve spodních příčkách nalezneme ubytování, stravování a pohostinství (809 litrů mléka a 724 kilogramů chleba pro rok 2006, 972 litrů mléka a 795 kilogramů chleba pro rok 2018).* *
+ ODPOVĚĎ: Konkrétní množství litrů mléka a kilogramů chleba, které si lze koupit za průměrný plat v daném odvětví, se odvíjí od průměrného platu pro daný rok v daném odvětví. Na horních příčkách se tak umisťuje např. peněžnictví a pojišťovnictví - v roce 2006 si za průměrný plat v tomto odvětví bylo možné pořídit 2 772 litrů mléka a 2 483 kilogramů chleba. Hodnoty pro rok 2018 mají jen zanedbatelný rozdíl oproti roku 2006 (2 769 litrů mléka a 2 264 kilogramů chleba). Ve spodních příčkách nalezneme ubytování, stravování a pohostinství (809 litrů mléka a 724 kilogramů chleba pro rok 2006, 972 litrů mléka a 795 kilogramů chleba pro rok 2018).
     
  **3. OTÁZKA: Která kategorie potravin zdražuje nejpomaleji (je u ní nejnižší percentuální meziroční nárůst)?**
-    * *ODPOVĚĎ: Nejpomaleji zdražují (resp. dokonce zlevňujÍ) cukr a rajčata.* *
+ ODPOVĚĎ: Nejpomaleji zdražují (resp. dokonce zlevňujÍ) cukr a rajčata.
     
  **4. OTÁZKA: Existuje rok, ve kterém byl meziroční nárůst cen potravin výrazně vyšší než růst mezd (větší než 10 %)?**
-   * *ODPOVĚĎ: V žádném roce nebyl nárůst cen výrazně vyšší než průměrné zdražení všech produktů v daném roce. Nejvyšší rozdíl mezi růstem cen a mezd byl v roce 2013, kde ceny potravin průměrně vzrostly o 6,7 % oproti průměrnému růstu mezd.* *
+ ODPOVĚĎ: V žádném roce nebyl nárůst cen výrazně vyšší než průměrné zdražení všech produktů v daném roce. Nejvyšší rozdíl mezi růstem cen a mezd byl v roce 2013, kde ceny potravin průměrně vzrostly o 6,7 % oproti průměrnému růstu mezd.
     
  **5. OTÁZKA: Má výška HDP vliv na změny ve mzdách a cenách potravin? Neboli, pokud HDP vzroste výrazněji v jednom roce, projeví se to na cenách potravin či mzdách ve stejném nebo násdujícím roce výraznějším růstem?**
-    * *ODPOVĚĎ: Vyšší nárůst HDP odkazuje k vyšším hodnotám procentuálního růstu mezd a cen (nejvyšší růst HDP v letech 2006 a 2007 se projevil výraznějším růstem mezd a cen v letech 2006, 2007 a 2008), ale neplatí striktně přímá úměra (třetí nejvýraznější růst HDP v roce 2015 doprovázejí nízké hodnoty růstu cen a mezd).* *
+ ODPOVĚĎ: Vyšší nárůst HDP odkazuje k vyšším hodnotám procentuálního růstu mezd a cen (nejvyšší růst HDP v letech 2006 a 2007 se projevil výraznějším růstem mezd a cen v letech 2006, 2007 a 2008), ale neplatí striktně přímá úměra (třetí nejvýraznější růst HDP v roce 2015 doprovázejí nízké hodnoty růstu cen a mezd).
 
 Otázky a odpovědi jsou rovněž uvedeny v závěru každého SQL dotazu, spolu se stručným popisem tabulky, ze které lze odpovědi vyčíst.
